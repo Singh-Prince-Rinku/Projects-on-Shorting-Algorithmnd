@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting and Searching</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        input, button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sorting and Searching Application</h1>
+
+    <div class="input-section">
+        <label for="numbers">Enter numbers (comma-separated):</label>
+        <input type="text" id="numbers" placeholder="e.g., 5,3,8,1">
+    </div>
+
+    <div class="input-section">
+        <button onclick="sortNumbers()">Sort Numbers</button>
+        <button onclick="searchNumber()">Search Number</button>
+        <input type="number" id="searchTarget" placeholder="Number to search">
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000'; // Backend URL
+
+        async function sortNumbers() {
+            const numbersInput = document.getElementById('numbers').value;
+            const numbers = numbersInput.split(',').map(num => parseFloat(num.trim()));
+            
+            const response = await fetch(`${API_BASE_URL}/sort`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numbers })
+            });
+            
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('output').innerText = `Sorted Numbers: ${data.sorted}`;
+            } else {
+                document.getElementById('output').innerText = `Error: ${data.error}`;
+            }
+        }
+
+        async function searchNumber() {
+            const numbersInput = document.getElementById('numbers').value;
+            const target = parseFloat(document.getElementById('searchTarget').value);
+            const numbers = numbersInput.split(',').map(num => parseFloat(num.trim()));
+
+            const response = await fetch(`${API_BASE_URL}/search`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numbers, target })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('output').innerText = data.found
+                    ? `Number ${target} found in the list.`
+                    : `Number ${target} not found in the list.`;
+            } else {
+                document.getElementById('output').innerText = `Error: ${data.error}`;
+            }
+        }
+    </script>
+</body>
+</html>
